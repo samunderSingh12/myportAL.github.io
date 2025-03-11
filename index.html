@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyPortfolio</title>
+    <style>
+        :root {
+            --primary: #0d1b16;
+            --secondary: #7dfa3c;
+            --accent: #00ff95;
+            --light: #f0fff0;
+            --dark: #0a120a;
+            --glow: #7dfa3c44;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+            background: radial-gradient(circle at 50% 50%, var(--dark), #050805);
+        }
+        
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+        
+        header {
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1.5s ease-out forwards;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            text-shadow: 0 0 10px var(--glow), 0 0 20px var(--glow);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            letter-spacing: 3px;
+            color: var(--accent);
+        }
+        
+        .tree-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            min-height: 700px;
+        }
+        
+        .tree-trunk {
+            width: 20px;
+            height: 0;
+            background: linear-gradient(to top, var(--secondary), var(--accent));
+            position: relative;
+            animation: growTrunk 2.5s ease-out forwards;
+            transform-origin: bottom center;
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--glow);
+        }
+        
+        .tree-trunk::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: -40px;
+            width: 100px;
+            height: 50px;
+            background: radial-gradient(ellipse at center, var(--glow), transparent 70%);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: pulsate 2s infinite alternate;
+        }
+        
+        .branches {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .branch {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 40px 0;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
+            animation-delay: calc(var(--i) * 0.5s);
+        }
+        
+        .branch-line {
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            width: 0;
+            animation: expandLine 1.5s ease-out forwards;
+            animation-delay: calc(var(--i) * 0.5s);
+            border-radius: 3px;
+            box-shadow: 0 0 10px var(--glow);
+        }
+        
+        .branch-left {
+            margin-right: 10px;
+        }
+        
+        .branch-right {
+            margin-left: 10px;
+        }
+        
+        .leaf {
+            width: 170px;
+            height: 170px;
+            background-color: rgba(0, 20, 10, 0.8);
+            border: 2px solid var(--secondary);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--glow);
+            cursor: pointer;
+            opacity: 0;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation-delay: calc(var(--i) * 0.5s + 0.5s);
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+        
+        .leaf::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, var(--secondary), transparent 30%);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .leaf:hover {
+            transform: scale(1.1) translateY(-5px);
+            border-color: var(--accent);
+            z-index: 10;
+        }
+        
+        .leaf:hover::before {
+            opacity: 0.15;
+        }
+        
+        .leaf-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+            transition: transform 0.3s ease;
+        }
+        
+        .leaf:hover .leaf-icon {
+            transform: scale(1.2);
+        }
+        
+        .leaf-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--secondary);
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .leaf-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+            color: var(--light);
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 10, 5, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background-color: rgba(13, 27, 22, 0.95);
+            width: 80%;
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 20px;
+            position: relative;
+            transform: translateY(50px);
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            border: 2px solid var(--secondary);
+            box-shadow: 0 0 30px var(--glow);
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--secondary);
+            transition: all 0.3s ease;
+            height: 40px;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: rgba(0, 20, 10, 0.3);
+        }
+        
+        .close-modal:hover {
+            color: var(--accent);
+            transform: rotate(90deg);
+            background-color: rgba(0, 20, 10, 0.6);
+        }
+        
+        .modal-title {
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+            color: var(--secondary);
+            letter-spacing: 3px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .modal-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--accent);
+            border-radius: 2px;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+        
+        .modal-image {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(45deg, rgba(10, 30, 20, 0.8), rgba(40, 100, 70, 0.4));
+            margin-bottom: 30px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--secondary);
+            font-size: 1.3rem;
+            border: 1px solid var(--secondary);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .modal-image::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(transparent, var(--glow), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s linear infinite;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
+            animation-delay: 3s;
+            position: relative;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 15s linear infinite;
+        }
+        
+        @keyframes growTrunk {
+            0% {
+                height: 0;
+            }
+            100% {
+                height: 350px;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes expandLine {
+            0% {
+                width: 0;
+            }
+            100% {
+                width: 150px;
+            }
+        }
+        
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            70% {
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulsate {
+            0% {
+                opacity: 0.4;
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 0.8;
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+                top: -100%;
+            }
+            100% {
+                left: 100%;
+                top: 100%;
+            }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.4;
+            }
+            90% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-700px) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .branch {
+                flex-direction: column;
+                align-items: center;
+                margin: 20px 0;
+            }
+            
+            .branch-line {
+                width: 5px !important;
+                height: 0px;
+                animation: expandLineVertical 1.5s ease-out forwards;
+                animation-delay: calc(var(--i) * 0.5s);
+            }
+            
+            .branch-left, .branch-right {
+                margin: 0;
+                margin-bottom: 15px;
+            }
+            
+            @keyframes expandLineVertical {
+                0% {
+                    height: 0;
+                }
+                100% {
+                    height: 60px;
+                }
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .leaf {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Samunder Singh</h1>
+            <div class="subtitle">Developer@student</div>
+        </header>
+        
+        <div class="tree-container">
+            <div class="tree-trunk"></div>
+            
+            <div class="branches">
+                <div class="branch" style="--i: 1">
+                    <div class="leaf branch-left" style="--i: 1" onclick="openModal('about')">
+                        <div class="leaf-icon">👋</div>
+                        <div class="leaf-title">About Me</div>
+                        <div class="leaf-desc">Who I am & what I do</div>
+                    </div>
+                    <div class="branch-line branch-left"></div>
+                    <div class="branch-line branch-right"></div>
+                    <div class="leaf branch-right" style="--i: 1" onclick="openModal('skills')">
+                        <div class="leaf-icon">🔧</div>
+                        <div class="leaf-title">Skills</div>
+                        <div class="leaf-desc">My technical expertise</div>
+                    </div>
+                </div>
+                
+                <div class="branch" style="--i: 2">
+                    <div class="leaf branch-left" style="--i: 2" onclick="openModal('portfolio')">
+                        <div class="leaf-icon">🎨</div>
+                        <div class="leaf-title">Portfolio</div>
+                        <div class="leaf-desc">My best works</div>
+                    </div>
+                    <div class="branch-line branch-left"></div>
+                    <div class="branch-line branch-right"></div>
+                    <div class="leaf branch-right" style="--i: 2" onclick="openModal('experience')">
+                        <div class="leaf-icon">📝</div>
+                        <div class="leaf-title">Experience</div>
+                        <div class="leaf-desc">Where I've worked</div>
+                    </div>
+                </div>
+                
+                <div class="branch" style="--i: 3">
+                    <div class="leaf branch-left" style="--i: 3" onclick="openModal('education')">
+                        <div class="leaf-icon">🎓</div>
+                        <div class="leaf-title">Education</div>
+                        <div class="leaf-desc">My academic journey</div>
+                    </div>
+                    <div class="branch-line branch-left"></div>
+                    <div class="branch-line branch-right"></div>
+                    <div class="leaf branch-right" style="--i: 3" onclick="openModal('contact')">
+                        <div class="leaf-icon">✉️</div>
+                        <div class="leaf-title">Contact</div>
+                        <div class="leaf-desc">Get in touch</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            &copy; 2025 Samunder Singh. All rights reserved.
+        </footer>
+    </div>
+    
+    <!-- Modals -->
+    <div class="modal" id="modal-about">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('about')">&times;</span>
+            <h2 class="modal-title">About Me</h2>
+            <div class="modal-image"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShB-SA1SiKy-pukF9t4KOMOsjRH_SwySUi-g&s" alt="A description of the image" width="300"></div>
+            <div class="modal-body">
+              <p>Samunder is an 18-year-old tech enthusiast and aspiring developer with a passion for AI, blockchain, and game development. Currently in 12th grade and planning to pursue a Bachelor of Computer Applications (BCA), he is deeply invested in coding, particularly in Python, JavaScript, and Lua. His love for technology extends beyond programming—he actively follows AI advancements and enjoys roleplaying with AI models on various platforms.
+Beyond tech, Samunder is a creative soul. He sketches anime, makes music beats, and enjoys reading fiction, especially thrillers and romance. He’s also a big fan of movies and anime. Despite considering himself lazy, he maintains a structured daily routine that balances coding, creativity, and relaxation.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="modal-skills">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('skills')">&times;</span>
+            <h2 class="modal-title">Skills</h2>
+               <p>ComingSoon</p>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="modal-portfolio">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('portfolio')">&times;</span>
+            <h2 class="modal-title">Portfolio</h2>
+            <div class="modal-image">Portfolio Gallery Placeholder</div>
+            <div class="modal-body">
+                <p>ComingSoon</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="modal-experience">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('experience')">&times;</span>
+            <h2 class="modal-title">Experience</h2>
+            <div class="modal-body"> 
+                   <p>ComingSoon</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="modal-education">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('education')">&times;</span>
+            <h2 class="modal-title">Education</h2>
+            <div class="modal-body">
+                <p>ComingSoon</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="modal-contact">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('contact')">&times;</span>
+            <h2 class="modal-title">Contact</h2>
+            <div class="modal-body">
+                <p><strong>Email:</strong>samundersinghadhikari9@gmail.com</p>
+                <p><strong>Location:</strong> haryana, india</p>
+                <p><strong>Social:</strong> @samundersingh on Instagram, Twitter</p>
+                <p>I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision. Feel free to reach out using any of the methods above!</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function openModal(id) {
+            document.getElementById(`modal-${id}`).classList.add('active');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(`modal-${id}`).classList.remove('active');
+        }
+        
+        // Close modal when clicking outside content
+        window.addEventListener('click', function(event) {
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+        
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random position
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                
+                // Random size
+                const size = Math.random() * 4 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random opacity
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
+                
+                // Random animation duration and delay
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialize particles
+        document.addEventListener('DOMContentLoaded', createParticles);
+        
+        // Add hover effects for leaves
+        document.querySelectorAll('.leaf').forEach(leaf => {
+            leaf.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1) translateY(-5px)';
+                this.style.boxShadow = `0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px var(--glow)`;
+            });
+            
+            leaf.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = `0 5px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--glow)`;
+            });
+        });
+    </script>
+</body>
+</html>
